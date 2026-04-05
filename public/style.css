@@ -1,0 +1,105 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f0f8ff;
+}
+
+.screen { min-height: 100vh; }
+
+h1 { text-align: center; color: #333; }
+
+input, button {
+  padding: 10px;
+  margin: 5px;
+  font-size: 16px;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover { background: #45a049; }
+
+button:disabled { background: #ccc; cursor: not-allowed; }
+
+#playersList {
+  margin: 20px 0;
+}
+
+.player {
+  padding: 10px;
+  margin: 5px 0;
+  background: white;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ready { border-left: 5px solid green; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.card {
+  aspect-ratio: 1;
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  background: white;
+}
+
+.card:hover { transform: scale(1.05); }
+
+.card.revealed { background: #fff; color: #000; }
+
+.card.hidden { 
+  background: linear-gradient(45deg, #ddd 25%, transparent 25%), 
+              linear-gradient(-45deg, #ddd 25%, transparent 25%), 
+              linear-gradient(45deg, transparent 75%, #ddd 75%), 
+              linear-gradient(-45deg, transparent 75%, #ddd 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  color: transparent;
+}
+
+.card.drawn { border-color: gold; background: lightyellow !important; font-size: 2.5em; }
+
+#grids {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.player-grid {
+  text-align: center;
+}
+
+.player-name { font-weight: bold; margin-bottom: 10px; color: #333; }
+
+.score { font-size: 1.2em; color: #666; }
+
+@media (max-width: 768px) {
+  .grid { max-width: 300px; gap: 3px; }
+  .card { font-size: 1.2em; }
+  #grids { flex-direction: column; align-items: center; }
+}

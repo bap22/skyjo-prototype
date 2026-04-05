@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyJo Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="lobby" class="screen">
+    <h1>SkyJo Prototype</h1>
+    <div id="nameInput">
+      <input id="playerName" placeholder="Your name" maxlength="20">
+      <button id="createBtn">Create Room</button>
+      <button id="joinBtn">Join Room</button>
+    </div>
+    <div id="roomCodeInput" style="display:none;">
+      <input id="roomCode" placeholder="Room Code" maxlength="4">
+    </div>
+    <div id="roomInfo" style="display:none;">
+      <p>Room: <span id="roomCodeDisp"></span></p>
+      <div id="playersList"></div>
+      <button id="toggleReadyBtn" style="display:none;">Ready</button>
+      <button id="startBtn" style="display:none;">Start Game</button>
+    </div>
+  </div>
+
+  <div id="game" class="screen" style="display:none;">
+    <h1>SkyJo</h1>
+    <div id="gameInfo">
+      <p>Room: <span id="gameRoomCode"></span></p>
+      <p id="currentTurn"></p>
+      <p>Deck: <span id="deckSize">0</span> | Discard: <span id="discardTop">?</span></p>
+    </div>
+    <div id="drawnCard" style="display:none; font-size:3em; border:2px solid gold; padding:20px; margin:20px; background:lightyellow;"></div>
+    <div id="drawButtons" style="display:none;">
+      <button id="drawDeckBtn">Draw Deck (hidden)</button>
+      <button id="drawDiscardBtn">Draw Discard (visible)</button>
+    </div>
+    <div id="grids"></div>
+    <div id="endScreen" style="display:none;">
+      <h2>Game Over! Winner(s): <span id="winner"></span></h2>
+      <div id="finalScores"></div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
