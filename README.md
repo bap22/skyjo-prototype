@@ -1,0 +1,1 @@
+# SkyJo Prototype\n\nOnline multiplayer SkyJo (2-4 players).\n\n## Local\n`npm install && npm start` → http://localhost:3000\n\n## Vercel\nDeploy via vercel.com → import repo.\n\nRules: Basic impl - draw/swap/discard, lowest revealed sum wins.
