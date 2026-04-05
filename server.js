@@ -21,6 +21,17 @@ const PORT = process.env.PORT || 3000;
 
 const rooms = new Map();
 
+function emitRoomList() {
+  const list = Array.from(rooms.entries())
+    .filter(([_, room]) => !room.started && room.players.length < 4)
+    .map(([code, room]) => ({
+      code,
+      playerCount: room.players.length,
+      players: room.players.map(p => p.name.substring(0, 10))
+    }));
+  io.emit('roomList', list);
+}
+
 function generateDeck() {
   const deck = [];
   for (let i = -5; i <= 15; i++) {
@@ -55,7 +66,7 @@ function sanitizePlayer(player, isOwner = false) {
     id: player.id,
     name: player.name,
     grid: player.grid.map(card => ({
-      value: card.revealed ? card.value : null,
+      value: (isOwner || card.revealed) ? card.value : null,
       revealed: card.revealed
     })),
     revealedCount: player.revealedCount,
@@ -108,6 +119,7 @@ function dealCards(room) {
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
+  emitRoomList();
 
   socket.on('createRoom', (name) => {
     let code;
@@ -137,9 +149,11 @@ io.on('connection', (socket) => {
     socket.join(code);
     socket.emit('roomCreated', { code, players: [room.players[0]] });
     socket.emit('roomUpdate', sanitizeRoom(room, socket.id));
+    emitRoomList();
   });
 
   socket.on('joinRoom', ({ code, name }) => {
+    code = code.toUpperCase();
     const room = rooms.get(code);
     if (!room) {
       socket.emit('error', 'Room not found');
@@ -164,21 +178,25 @@ io.on('connection', (socket) => {
     };
     room.players.push(player);
     socket.join(code);
-    io.to(code).emit('roomUpdate', sanitizeRoom(room, socket.id)); // Note: each gets own view, but since mask same for all except owner but we mask for all
+    room.players.forEach(p => io.to(p.id).emit('roomUpdate', sanitizeRoom(room, p.id)));
     socket.emit('roomJoined', sanitizeRoom(room, socket.id));
+    emitRoomList();
   });
 
   socket.on('toggleReady', (code) => {
+    code = code.toUpperCase();
     const room = rooms.get(code);
     if (!room || room.started) return;
     const player = room.players.find(p => p.id === socket.id);
     if (player) {
       player.ready = !player.ready;
       io.to(code).emit('roomUpdate', sanitizeRoom(room, socket.id));
+      emitRoomList();
     }
   });
 
   socket.on('startGame', (code) => {
+    code = code.toUpperCase();
     const room = rooms.get(code);
     if (!room || room.host !== socket.id || room.players.filter(p => p.ready).length < 2) {
       socket.emit('error', 'Cannot start game');
@@ -186,6 +204,7 @@ io.on('connection', (socket) => {
     }
     dealCards(room);
     room.started = true;
+    emitRoomList();
     io.to(code).emit('gameStarted', sanitizeRoom(room, socket.id));
   });
 
@@ -255,6 +274,7 @@ io.on('connection', (socket) => {
           rooms.delete(code);
         } else {
           io.to(code).emit('roomUpdate', sanitizeRoom(room, socket.id));
+          emitRoomList();
         }
         break;
       }

@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io({transports: ['polling']});
 
 let currentRoomCode = null;
 let playerId = null;
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playersList = document.getElementById('playersList');
   const toggleReadyBtn = document.getElementById('toggleReadyBtn');
   const startBtn = document.getElementById('startBtn');
+  const roomListEl = document.getElementById('roomList');
 
   playerNameInput.value = localStorage.getItem('skyjoName') || '';
 
@@ -196,6 +197,26 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('drawDiscardBtn').onclick = () => {
     socket.emit('drawDiscard', currentRoomCode);
   };
+
+  socket.on('roomList', (list) => {
+    roomListEl.innerHTML = '';
+    list.forEach(room => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${room.code}</strong> (${room.playerCount}/4): ${room.players.join(', ')}`;
+      li.style.cursor = 'pointer';
+      li.style.color = 'blue';
+      li.onclick = (e) => {
+        e.preventDefault();
+        roomCodeInput.value = room.code;
+        roomCodeDiv.style.display = 'block';
+        roomCodeInput.focus();
+        roomCodeInput.select();
+        // Optionally auto-join if name set
+        // joinRoom();
+      };
+      roomListEl.appendChild(li);
+    });
+  });
 
   socket.on('error', (msg) => {
     alert(msg);
