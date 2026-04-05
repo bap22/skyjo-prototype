@@ -4,7 +4,7 @@ let currentRoomCode = null;
 let playerId = null;
 let playerName = '';
 let drawnValue = null;
-let currentTurnIdx = -1;
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const playerNameInput = document.getElementById('playerName');
@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const roomInfo = document.getElementById('roomInfo');
   const roomCodeDisp = document.getElementById('roomCodeDisp');
   const playersList = document.getElementById('playersList');
-  const toggleReadyBtn = document.getElementById('toggleReadyBtn');
   const startBtn = document.getElementById('startBtn');
   const roomListEl = document.getElementById('roomList');
 
@@ -71,21 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
     playersList.innerHTML = '';
     room.players.forEach((p, idx) => {
       const div = document.createElement('div');
-      div.className = `player ${p.ready ? 'ready' : ''}`;
-      div.innerHTML = `<span>${p.name} (${p.revealedCount || 0}/12 revealed, score: ${p.score || 0})</span><span>${p.ready ? 'Ready' : 'Not ready'}</span>`;
+      div.className = 'player';
+      div.innerHTML = `<span>${p.name} (${p.revealedCount || 0}/12 revealed, score: ${p.score || 0})</span>`;
       playersList.appendChild(div);
     });
-    const isHost = room.players.some(p => p.id === socket.id && room.host === socket.id); // approx
-    const allReady = room.players.every(p => p.ready);
-    const numReady = room.players.filter(p => p.ready).length;
-    toggleReadyBtn.style.display = room.started ? 'none' : 'inline';
-    startBtn.style.display = (isHost || false) && !room.started && numReady >= 2 ? 'inline' : 'none';
-    toggleReadyBtn.textContent = room.players.find(p => p.id === socket.id)?.ready ? 'Unready' : 'Ready';
+    const isHost = room.hostId === socket.id;
+    startBtn.style.display = isHost && !room.started && room.players.length >= 2 ? 'inline' : 'none';
   }
-
-  toggleReadyBtn.onclick = () => {
-    socket.emit('toggleReady', currentRoomCode);
-  };
 
   startBtn.onclick = () => {
     socket.emit('startGame', currentRoomCode);
@@ -155,19 +146,20 @@ document.addEventListener('DOMContentLoaded', () => {
       gridsEl.appendChild(playerDiv);
     });
 
+    const myTurn = room.players[room.currentTurn]?.id === socket.id;
+    const hasDrawn = drawnValue !== null;
+    drawButtons.style.display = (myTurn && !hasDrawn && !room.ended) ? 'block' : 'none';
+
+    if (!(myTurn && hasDrawn)) {
+      clearDrawn();
+    }
+
     if (room.ended) {
       endScreen.style.display = 'block';
       winnerEl.textContent = room.winner;
       finalScoresEl.innerHTML = room.players.map(p => `<p>${p.name}: ${p.finalScore}</p>`).join('');
-      drawButtons.style.display = 'none';
     } else {
       endScreen.style.display = 'none';
-    }
-
-    // Clear drawn if not turn
-    const myTurn = room.players[room.currentTurn]?.id === socket.id;
-    if (!myTurn) {
-      clearDrawn();
     }
   }
 
@@ -180,10 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
       c.style.borderColor = '';
       c.onclick = null;
     });
-    drawButtons.style.display = myTurn ? 'block' : 'none'; // define myTurn here?
+    drawButtons.style.display = 'none';
   }
 
-  window.clearDrawn = clearDrawn; // global for now
+
 
   function swapCard(pos) {
     socket.emit('swapCard', { code: currentRoomCode, pos, drawnValue });
@@ -205,14 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
       li.innerHTML = `<strong>${room.code}</strong> (${room.playerCount}/4): ${room.players.join(', ')}`;
       li.style.cursor = 'pointer';
       li.style.color = 'blue';
-      li.onclick = (e) => {
-        e.preventDefault();
+      li.onclick = () => {
         roomCodeInput.value = room.code;
-        roomCodeDiv.style.display = 'block';
-        roomCodeInput.focus();
-        roomCodeInput.select();
-        // Optionally auto-join if name set
-        // joinRoom();
+        joinRoom();
       };
       roomListEl.appendChild(li);
     });

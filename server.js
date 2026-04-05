@@ -71,7 +71,6 @@ function sanitizePlayer(player, isOwner = false) {
     })),
     revealedCount: player.revealedCount,
     score: player.score,
-    ready: player.ready,
     finalScore: player.finalScore
   };
 }
@@ -81,6 +80,7 @@ function sanitizeRoom(room, socketId) {
   const isOwner = !!viewerPlayer;
   return {
     code: room.code,
+    hostId: room.host,
     players: room.players.map(p => sanitizePlayer(p, p.id === socketId)),
     discardTop: room.discard.length > 0 ? room.discard[room.discard.length - 1] : null,
     deckSize: room.deck.length,
@@ -134,7 +134,7 @@ io.on('connection', (socket) => {
         grid: [],
         revealedCount: 0,
         score: 0,
-        ready: false,
+        ready: true,
         finalScore: 0
       }],
       deck: [],
@@ -173,7 +173,7 @@ io.on('connection', (socket) => {
       grid: [],
       revealedCount: 0,
       score: 0,
-      ready: false,
+      ready: true,
       finalScore: 0
     };
     room.players.push(player);
@@ -183,22 +183,10 @@ io.on('connection', (socket) => {
     emitRoomList();
   });
 
-  socket.on('toggleReady', (code) => {
-    code = code.toUpperCase();
-    const room = rooms.get(code);
-    if (!room || room.started) return;
-    const player = room.players.find(p => p.id === socket.id);
-    if (player) {
-      player.ready = !player.ready;
-      io.to(code).emit('roomUpdate', sanitizeRoom(room, socket.id));
-      emitRoomList();
-    }
-  });
-
   socket.on('startGame', (code) => {
     code = code.toUpperCase();
     const room = rooms.get(code);
-    if (!room || room.host !== socket.id || room.players.filter(p => p.ready).length < 2) {
+    if (!room || room.host !== socket.id || room.players.length < 2 || room.started) {
       socket.emit('error', 'Cannot start game');
       return;
     }
