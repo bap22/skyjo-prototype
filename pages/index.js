@@ -92,7 +92,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 3,
-      background: `radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 60%, ${colors.border}20 100%)`,
+      background: `radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 50%, ${colors.border}10 100%)`,
       borderRadius: 10,
       border: selected ? `3px solid #facc15` : `3px solid ${colors.border}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -102,11 +102,11 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
       transition: 'transform 0.1s, box-shadow 0.1s',
       transform: selectable ? 'scale(1.05)' : 'scale(1)',
       position: 'relative',
-      fontFamily: 'Ubuntu, "Helvetica Neue", Arial, sans-serif',
+      fontFamily: 'Georgia, "Times New Roman", serif',
     }}>
       {/* Center number - much larger */}
       <div style={{
-        fontSize: size === 'sm' ? 32 : size === 'md' ? 42 : 52,
+        fontSize: size === 'sm' ? 28 : size === 'md' ? 38 : 46,
         fontWeight: 'bold', color: colors.text,
         textShadow: '0 1px 2px rgba(0,0,0,0.1)',
       }}>{value}</div>
