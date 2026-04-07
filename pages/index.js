@@ -27,21 +27,21 @@ async function api(action, body = {}, method = 'POST') {
   return res.json();
 }
 
+// ─── Card color scheme ────────────────────────────────────────────────────────
+function getCardColor(val) {
+  if (val === -2 || val === -1) return { border: '#1e3a8a', bg: '#dbeafe', text: '#1e3a8a', accent: '#1e3a8a' }; // -2, -1 blue
+  if (val === 0) return { border: '#0ea5e9', bg: '#e0f2fe', text: '#0369a1', accent: '#0ea5e9' }; // 0 light blue
+  if (val <= 4) return { border: '#65a30d', bg: '#ecfccb', text: '#3f6212', accent: '#65a30d' }; // 1-4 lime green
+  if (val <= 6) return { border: '#eab308', bg: '#fef9c3', text: '#854d0e', accent: '#eab308' }; // 5-6 yellow
+  if (val <= 9) return { border: '#ea580c', bg: '#ffedd5', text: '#9a3412', accent: '#ea580c' }; // 7-9 orange
+  return { border: '#dc2626', bg: '#fee2e2', text: '#991b1b', accent: '#dc2626' }; // 10-12 red
+}
+
 // ─── Card component ───────────────────────────────────────────────────────────
 function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) {
   const value = card?.value;
   const revealed = card?.revealed;
   const removed = card?.removed;
-
-  // SkyJo color scheme
-  function getCardColor(val) {
-    if (val === -2 || val === -1) return { border: '#1e3a8a', bg: '#dbeafe', text: '#1e3a8a', accent: '#1e3a8a' }; // -2, -1 blue
-    if (val === 0) return { border: '#0ea5e9', bg: '#e0f2fe', text: '#0369a1', accent: '#0ea5e9' }; // 0 light blue
-    if (val <= 4) return { border: '#65a30d', bg: '#ecfccb', text: '#3f6212', accent: '#65a30d' }; // 1-4 lime green
-    if (val <= 6) return { border: '#eab308', bg: '#fef9c3', text: '#854d0e', accent: '#eab308' }; // 5-6 yellow
-    if (val <= 9) return { border: '#ea580c', bg: '#ffedd5', text: '#9a3412', accent: '#ea580c' }; // 7-9 orange
-    return { border: '#dc2626', bg: '#fee2e2', text: '#991b1b', accent: '#dc2626' }; // 10-12 red
-  }
 
   const colors = revealed && !removed ? getCardColor(value) : null;
 
