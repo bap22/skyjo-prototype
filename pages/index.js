@@ -92,32 +92,23 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 3,
-      background: colors.bg,
+      background: `radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 60%, ${colors.border}20 100%)`,
       borderRadius: 10,
       border: selected ? `3px solid #facc15` : `3px solid ${colors.border}`,
-      display: 'inline-flex',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: selectable ? 'pointer' : 'default',
       userSelect: 'none',
       boxShadow: selected ? '0 0 12px #facc15' : '0 2px 4px #0002',
       transition: 'transform 0.1s, box-shadow 0.1s',
       transform: selectable ? 'scale(1.05)' : 'scale(1)',
       position: 'relative',
+      fontFamily: 'Ubuntu, "Helvetica Neue", Arial, sans-serif',
     }}>
-      {/* Corner number top-left */}
+      {/* Center number - much larger */}
       <div style={{
-        position: 'absolute', top: 3, left: 4,
-        fontSize: s.corner, fontWeight: 'bold', color: colors.text,
-      }}>{value}</div>
-      {/* Corner number bottom-right (rotated) */}
-      <div style={{
-        position: 'absolute', bottom: 3, right: 4,
-        fontSize: s.corner, fontWeight: 'bold', color: colors.text,
-        transform: 'rotate(180deg)',
-      }}>{value}</div>
-      {/* Center number */}
-      <div style={{
-        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: s.fs, fontWeight: 'bold', color: colors.text,
+        fontSize: size === 'sm' ? 32 : size === 'md' ? 42 : 52,
+        fontWeight: 'bold', color: colors.text,
+        textShadow: '0 1px 2px rgba(0,0,0,0.1)',
       }}>{value}</div>
       {/* Color accent bar at bottom */}
       <div style={{
@@ -129,10 +120,9 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
   );
 }
 
-// 4x3 grid
+// 3x4 grid (3 rows, 4 columns)
 function PlayerGrid({ player, isOwn, selectable, selectedPos, onCardClick, size = 'md' }) {
-  // 4 rows, 3 cols: pos = row*3 + col
-  const rows = 4, cols = 3;
+  const rows = 3, cols = 4;
   return (
     <div>
       {Array.from({ length: rows }).map((_, row) => (
