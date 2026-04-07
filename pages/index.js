@@ -35,11 +35,12 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
 
   // SkyJo color scheme
   function getCardColor(val) {
-    if (val < 0) return { border: '#22c55e', bg: '#f0fdf4', text: '#166534', accent: '#22c55e' }; // -2, -1 special green
-    if (val === 0) return { border: '#84cc16', bg: '#f7fee7', text: '#3f6212', accent: '#84cc16' }; // 0 lime
-    if (val <= 4) return { border: '#eab308', bg: '#fefce8', text: '#854d0e', accent: '#eab308' }; // 1-4 yellow
-    if (val <= 8) return { border: '#f97316', bg: '#fff7ed', text: '#9a3412', accent: '#f97316' }; // 5-8 orange
-    return { border: '#ef4444', bg: '#fef2f2', text: '#991b1b', accent: '#ef4444' }; // 9-12 red
+    if (val === -2 || val === -1) return { border: '#1e3a8a', bg: '#dbeafe', text: '#1e3a8a', accent: '#1e3a8a' }; // -2, -1 blue
+    if (val === 0) return { border: '#0ea5e9', bg: '#e0f2fe', text: '#0369a1', accent: '#0ea5e9' }; // 0 light blue
+    if (val <= 4) return { border: '#65a30d', bg: '#ecfccb', text: '#3f6212', accent: '#65a30d' }; // 1-4 lime green
+    if (val <= 6) return { border: '#eab308', bg: '#fef9c3', text: '#854d0e', accent: '#eab308' }; // 5-6 yellow
+    if (val <= 9) return { border: '#ea580c', bg: '#ffedd5', text: '#9a3412', accent: '#ea580c' }; // 7-9 orange
+    return { border: '#dc2626', bg: '#fee2e2', text: '#991b1b', accent: '#dc2626' }; // 10-12 red
   }
 
   const colors = revealed && !removed ? getCardColor(value) : null;
@@ -92,13 +93,13 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 3,
-      background: `radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 50%, ${colors.border}10 100%)`,
+      background: `radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 40%, ${colors.border}08 100%)`,
       borderRadius: 10,
-      border: selected ? `3px solid #facc15` : `3px solid ${colors.border}`,
+      border: selected ? `3px solid #facc15` : `1px solid ${colors.border}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: selectable ? 'pointer' : 'default',
       userSelect: 'none',
-      boxShadow: selected ? '0 0 12px #facc15' : '0 2px 4px #0002',
+      boxShadow: selected ? '0 0 12px #facc15' : '0 1px 3px #0002',
       transition: 'transform 0.1s, box-shadow 0.1s',
       transform: selectable ? 'scale(1.05)' : 'scale(1)',
       position: 'relative',
