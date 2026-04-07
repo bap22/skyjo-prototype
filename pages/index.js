@@ -33,46 +33,98 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
   const revealed = card?.revealed;
   const removed = card?.removed;
 
-  let bg = '#e8e8e8';
-  if (revealed && !removed) {
-    if (value < 0) bg = '#4ade80';
-    else if (value === 0) bg = '#a3e635';
-    else if (value <= 4) bg = '#fef08a';
-    else if (value <= 8) bg = '#fb923c';
-    else bg = '#f87171';
+  // SkyJo color scheme
+  function getCardColor(val) {
+    if (val < 0) return { border: '#22c55e', bg: '#f0fdf4', text: '#166534', accent: '#22c55e' }; // -2, -1 special green
+    if (val === 0) return { border: '#84cc16', bg: '#f7fee7', text: '#3f6212', accent: '#84cc16' }; // 0 lime
+    if (val <= 4) return { border: '#eab308', bg: '#fefce8', text: '#854d0e', accent: '#eab308' }; // 1-4 yellow
+    if (val <= 8) return { border: '#f97316', bg: '#fff7ed', text: '#9a3412', accent: '#f97316' }; // 5-8 orange
+    return { border: '#ef4444', bg: '#fef2f2', text: '#991b1b', accent: '#ef4444' }; // 9-12 red
   }
 
-  const sizes = { sm: { w: 36, h: 52, fs: 13 }, md: { w: 52, h: 72, fs: 18 }, lg: { w: 62, h: 88, fs: 22 } };
+  const colors = revealed && !removed ? getCardColor(value) : null;
+
+  const sizes = { sm: { w: 40, h: 58, fs: 14, corner: 10 }, md: { w: 56, h: 80, fs: 20, corner: 12 }, lg: { w: 68, h: 96, fs: 26, corner: 16 } };
   const s = sizes[size] || sizes.md;
 
   if (removed) {
     return (
       <div style={{
         width: s.w, height: s.h, margin: 3,
-        border: '2px dashed #ccc', borderRadius: 8,
+        border: '2px dashed #ccc', borderRadius: 10,
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         color: '#bbb', fontSize: s.fs - 4, opacity: 0.4,
+        background: '#f8fafc',
       }}>✓</div>
     );
   }
 
+  // Hidden card - card back pattern
+  if (!revealed) {
+    return (
+      <div onClick={selectable && onClick ? onClick : undefined} style={{
+        width: s.w, height: s.h, margin: 3,
+        background: '#1e3a5f',
+        borderRadius: 10,
+        border: selected ? '3px solid #facc15' : selectable ? '2px solid #facc15' : '2px solid #475569',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        cursor: selectable ? 'pointer' : 'default',
+        userSelect: 'none',
+        boxShadow: selectable ? '0 0 8px #facc1580' : selected ? '0 0 12px #facc15' : '0 2px 4px #0003',
+        transition: 'transform 0.1s, box-shadow 0.1s',
+        transform: selectable ? 'scale(1.05)' : 'scale(1)',
+        backgroundImage: 'repeating-linear-gradient(45deg, #1e3a5f 0, #1e3a5f 4px, #2563eb 4px, #2563eb 8px)',
+        backgroundSize: '12px 12px',
+      }}>
+        <div style={{
+          width: s.w - 12, height: s.h - 12,
+          border: `2px solid ${selectable ? '#facc15' : '#3b82f6'}`,
+          borderRadius: 6,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{ color: '#60a5fa', fontSize: s.fs - 6, fontWeight: 'bold' }}>SKYJO</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Revealed card - SkyJo style
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 3,
-      background: revealed ? bg : (selectable ? '#5b8ff9' : '#334155'),
-      border: selected ? '3px solid #facc15' : selectable ? '2px solid #facc15' : '2px solid #475569',
-      borderRadius: 8,
-      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      background: colors.bg,
+      borderRadius: 10,
+      border: selected ? `3px solid #facc15` : `3px solid ${colors.border}`,
+      display: 'inline-flex',
       cursor: selectable ? 'pointer' : 'default',
-      fontSize: s.fs,
-      fontWeight: 'bold',
-      color: revealed ? '#1e293b' : (selectable ? '#fff' : '#94a3b8'),
       userSelect: 'none',
-      boxShadow: selectable ? '0 0 8px #facc1580' : selected ? '0 0 12px #facc15' : '0 1px 3px #0004',
+      boxShadow: selected ? '0 0 12px #facc15' : '0 2px 4px #0002',
       transition: 'transform 0.1s, box-shadow 0.1s',
       transform: selectable ? 'scale(1.05)' : 'scale(1)',
+      position: 'relative',
     }}>
-      {revealed ? value : (selectable ? '?' : '?')}
+      {/* Corner number top-left */}
+      <div style={{
+        position: 'absolute', top: 3, left: 4,
+        fontSize: s.corner, fontWeight: 'bold', color: colors.text,
+      }}>{value}</div>
+      {/* Corner number bottom-right (rotated) */}
+      <div style={{
+        position: 'absolute', bottom: 3, right: 4,
+        fontSize: s.corner, fontWeight: 'bold', color: colors.text,
+        transform: 'rotate(180deg)',
+      }}>{value}</div>
+      {/* Center number */}
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: s.fs, fontWeight: 'bold', color: colors.text,
+      }}>{value}</div>
+      {/* Color accent bar at bottom */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        height: 4, background: colors.accent,
+        borderBottomLeftRadius: 7, borderBottomRightRadius: 7,
+      }} />
     </div>
   );
 }
