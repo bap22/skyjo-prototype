@@ -36,14 +36,25 @@
       <p>Deck: <span id="deckSize">0</span> | Discard: <span id="discardTop">?</span></p>
     </div>
     <div id="drawnCard" style="display:none; font-size:3em; border:2px solid gold; padding:20px; margin:20px; background:lightyellow;"></div>
+    <div id="actionButtons" style="display:none; margin:20px;">
+      <button id="discardBtn" style="margin-right:10px; padding:10px 20px;">Discard Card</button>
+      <span style="margin-left:10px;">Then flip a card from your grid</span>
+    </div>
     <div id="drawButtons" style="display:none;">
       <button id="drawDeckBtn">Draw Deck (hidden)</button>
       <button id="drawDiscardBtn">Draw Discard (visible)</button>
     </div>
     <div id="grids"></div>
+    <div id="roundEndScreen" style="display:none;">
+      <h2>Round Complete!</h2>
+      <p>Final round triggered by: <span id="finalRoundFinisher"></span></p>
+      <div id="finalScores"></div>
+      <button id="nextRoundBtn" style="margin-top:20px; font-size:1.2em; padding:10px 20px;">Next Round</button>
+    </div>
     <div id="endScreen" style="display:none;">
       <h2>Game Over! Winner(s): <span id="winner"></span></h2>
-      <div id="finalScores"></div>
+      <div id="finalScoresGame"></div>
+      <button id="newGameBtn" style="margin-top:20px; font-size:1.2em; padding:10px 20px;">New Game</button>
     </div>
   </div>
 

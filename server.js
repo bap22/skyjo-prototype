@@ -236,21 +236,125 @@ io.on('connection', (socket) => {
     player.revealedCount = player.grid.filter(c => c.revealed).length;
     player.score = calculateScore(player);
 
-    let ended = false;
-    if (player.revealedCount === 12) {
-      room.ended = true;
-      let minScore = Infinity;
-      room.players.forEach(p => {
-        p.finalScore = calculateScore(p);
-        if (p.finalScore < minScore) minScore = p.finalScore;
-      });
-      const winners = room.players.filter(p => p.finalScore === minScore).map(p => p.name);
-      room.winner = winners.join(', ');
-    } else {
+    // Check if this player just finished (all cards revealed)
+    if (player.revealedCount === 12 && !room.triggeredFinalRound) {
+      // Mark that final round has been triggered
+      room.triggeredFinalRound = true;
+      room.finalRoundFinisher = player.name;
+      // Continue giving turns to remaining players
       room.currentTurn = (room.currentTurn + 1) % room.players.length;
+      io.to(code).emit('gameUpdate', sanitizeRoom(room, socket.id));
+      return;
     }
 
+    // If we're in final round mode, check if everyone has had their turn
+    if (room.triggeredFinalRound) {
+      // Check if we're back to the finisher (everyone had a turn)
+      if (room.currentTurn === room.players.findIndex(p => p.name === room.finalRoundFinisher)) {
+        // Now actually end the game
+        room.ended = true;
+        room.phase = 'roundEnd';
+        // Reveal all cards for all players
+        room.players.forEach(p => {
+          p.grid.forEach(c => { c.revealed = true; });
+          p.finalScore = calculateScore(p);
+        });
+        let minScore = Infinity;
+        room.players.forEach(p => {
+          if (p.finalScore < minScore) minScore = p.finalScore;
+        });
+        const winners = room.players.filter(p => p.finalScore === minScore).map(p => p.name);
+        room.winner = winners.join(', ');
+        io.to(code).emit('gameUpdate', sanitizeRoom(room, socket.id));
+        return;
+      }
+    }
+
+    // Normal turn progression
+    room.currentTurn = (room.currentTurn + 1) % room.players.length;
     io.to(code).emit('gameUpdate', sanitizeRoom(room, socket.id));
+  });
+
+  socket.on('discardCard', ({ code, flipPos }) => {
+    const room = rooms.get(code);
+    if (!room || !room.started || room.ended) return;
+    const playerIdx = room.currentTurn;
+    const player = room.players[playerIdx];
+    if (player.id !== socket.id) return;
+    
+    // Discard the drawn card and optionally flip a card
+    if (flipPos !== undefined && flipPos >= 0 && flipPos <= 11) {
+      player.grid[flipPos].revealed = true;
+      player.revealedCount = player.grid.filter(c => c.revealed).length;
+      player.score = calculateScore(player);
+    }
+
+    // Check if this player just finished (all cards revealed)
+    if (player.revealedCount === 12 && !room.triggeredFinalRound) {
+      room.triggeredFinalRound = true;
+      room.finalRoundFinisher = player.name;
+      room.currentTurn = (room.currentTurn + 1) % room.players.length;
+      io.to(code).emit('gameUpdate', sanitizeRoom(room, socket.id));
+      return;
+    }
+
+    // If we're in final round mode, check if everyone has had their turn
+    if (room.triggeredFinalRound) {
+      if (room.currentTurn === room.players.findIndex(p => p.name === room.finalRoundFinisher)) {
+        room.ended = true;
+        room.phase = 'roundEnd';
+        room.players.forEach(p => {
+          p.grid.forEach(c => { c.revealed = true; });
+          p.finalScore = calculateScore(p);
+        });
+        let minScore = Infinity;
+        room.players.forEach(p => {
+          if (p.finalScore < minScore) minScore = p.finalScore;
+        });
+        const winners = room.players.filter(p => p.finalScore === minScore).map(p => p.name);
+        room.winner = winners.join(', ');
+        io.to(code).emit('gameUpdate', sanitizeRoom(room, socket.id));
+        return;
+      }
+    }
+
+    room.currentTurn = (room.currentTurn + 1) % room.players.length;
+    io.to(code).emit('gameUpdate', sanitizeRoom(room, socket.id));
+  });
+
+  socket.on('newRound', (code) => {
+    code = code.toUpperCase();
+    const room = rooms.get(code);
+    if (!room || !room.ended) return;
+    
+    // Reset for new round
+    room.ended = false;
+    room.triggeredFinalRound = false;
+    room.finalRoundFinisher = null;
+    room.phase = 'initialReveal';
+    dealCards(room);
+    io.to(code).emit('gameStarted', sanitizeRoom(room, socket.id));
+  });
+
+  socket.on('newGame', (code) => {
+    code = code.toUpperCase();
+    const room = rooms.get(code);
+    if (!room) return;
+    
+    // Full reset
+    room.ended = false;
+    room.started = false;
+    room.triggeredFinalRound = false;
+    room.finalRoundFinisher = null;
+    room.phase = 'lobby';
+    room.winner = null;
+    room.players.forEach(p => {
+      p.grid = [];
+      p.score = 0;
+      p.revealedCount = 0;
+      p.finalScore = 0;
+    });
+    io.to(code).emit('roomUpdate', sanitizeRoom(room, socket.id));
   });
 
   socket.on('disconnect', () => {

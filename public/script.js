@@ -4,6 +4,7 @@ let currentRoomCode = null;
 let playerId = null;
 let playerName = '';
 let drawnValue = null;
+let discardMode = false; // true = waiting to flip a card after discard
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -92,9 +93,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const drawnCardEl = document.getElementById('drawnCard');
   const drawButtons = document.getElementById('drawButtons');
   const gridsEl = document.getElementById('grids');
+  const roundEndScreen = document.getElementById('roundEndScreen');
   const endScreen = document.getElementById('endScreen');
   const winnerEl = document.getElementById('winner');
   const finalScoresEl = document.getElementById('finalScores');
+  const finalScoresGameEl = document.getElementById('finalScoresGame');
+  const finalRoundFinisherEl = document.getElementById('finalRoundFinisher');
+  const nextRoundBtn = document.getElementById('nextRoundBtn');
+  const newGameBtn = document.getElementById('newGameBtn');
+  const actionButtons = document.getElementById('actionButtons');
+  const discardBtn = document.getElementById('discardBtn');
 
   socket.on('gameStarted', (room) => {
     lobbyDiv.style.display = 'none';
@@ -112,7 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
     drawnCardEl.style.display = 'block';
     drawnCardEl.classList.add('drawn');
     drawButtons.style.display = 'none';
-    // Highlight own grid
+    // Show discard button option
+    actionButtons.style.display = 'block';
+    discardMode = false;
+    // Highlight own grid for swap
     const ownGrid = document.querySelector('.player-grid.own .grid');
     if (ownGrid) {
       Array.from(ownGrid.children).forEach((card, i) => {
@@ -154,12 +165,23 @@ document.addEventListener('DOMContentLoaded', () => {
       clearDrawn();
     }
 
-    if (room.ended) {
+    // Check if round end (final round triggered, waiting for everyone)
+    if (room.triggeredFinalRound && !room.ended) {
+      roundEndScreen.style.display = 'block';
+      finalRoundFinisherEl.textContent = room.finalRoundFinisher || '?';
+      finalScoresEl.innerHTML = room.players.map(p => `<p><strong>${p.name}</strong>: ${p.score} (${p.grid.filter(c => c.revealed).length}/12 revealed)</p>`).join('');
+      gridsEl.style.display = 'block';
+      endScreen.style.display = 'none';
+    } else if (room.ended) {
+      roundEndScreen.style.display = 'none';
       endScreen.style.display = 'block';
       winnerEl.textContent = room.winner;
-      finalScoresEl.innerHTML = room.players.map(p => `<p>${p.name}: ${p.finalScore}</p>`).join('');
+      finalScoresGameEl.innerHTML = room.players.map(p => `<p><strong>${p.name}</strong>: ${p.finalScore}</p>`).join('');
+      gridsEl.style.display = 'block';
     } else {
+      roundEndScreen.style.display = 'none';
       endScreen.style.display = 'none';
+      gridsEl.style.display = 'block';
     }
   }
 
@@ -167,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
     drawnValue = null;
     drawnCardEl.style.display = 'none';
     drawnCardEl.classList.remove('drawn');
+    actionButtons.style.display = 'none';
+    discardMode = false;
     // Clear highlights
     document.querySelectorAll('.card').forEach(c => {
       c.style.borderColor = '';
@@ -182,12 +206,36 @@ document.addEventListener('DOMContentLoaded', () => {
     clearDrawn();
   }
 
+  discardBtn.onclick = () => {
+    discardMode = true;
+    actionButtons.style.display = 'none';
+    // Now highlight cards to flip
+    const ownGrid = document.querySelector('.player-grid.own .grid');
+    if (ownGrid) {
+      Array.from(ownGrid.children).forEach((card, i) => {
+        card.style.borderColor = '#dc3545';
+        card.onclick = () => {
+          socket.emit('discardCard', { code: currentRoomCode, flipPos: i });
+          clearDrawn();
+        };
+      });
+    }
+  };
+
   document.getElementById('drawDeckBtn').onclick = () => {
     socket.emit('drawDeck', currentRoomCode);
   };
 
   document.getElementById('drawDiscardBtn').onclick = () => {
     socket.emit('drawDiscard', currentRoomCode);
+  };
+
+  nextRoundBtn.onclick = () => {
+    socket.emit('newRound', currentRoomCode);
+  };
+
+  newGameBtn.onclick = () => {
+    socket.emit('newGame', currentRoomCode);
   };
 
   socket.on('roomList', (list) => {
