@@ -61,13 +61,13 @@ function calculateScore(player) {
   return player.grid.reduce((sum, card) => sum + (card.revealed ? card.value : 0), 0);
 }
 
-function sanitizePlayer(player, isOwner = false) {
+function sanitizePlayer(player, isOwner = false, revealAll = false) {
   return {
     id: player.id,
     name: player.name,
     grid: player.grid.map(card => ({
-      value: (isOwner || card.revealed) ? card.value : null,
-      revealed: card.revealed
+      value: (isOwner || card.revealed || revealAll) ? card.value : null,
+      revealed: revealAll ? true : card.revealed
     })),
     revealedCount: player.revealedCount,
     score: player.score,
@@ -78,16 +78,20 @@ function sanitizePlayer(player, isOwner = false) {
 function sanitizeRoom(room, socketId) {
   const viewerPlayer = room.players.find(p => p.id === socketId);
   const isOwner = !!viewerPlayer;
+  // During final round or when ended, reveal all cards to everyone
+  const revealAll = room.triggeredFinalRound || room.ended;
   return {
     code: room.code,
     hostId: room.host,
-    players: room.players.map(p => sanitizePlayer(p, p.id === socketId)),
+    players: room.players.map(p => sanitizePlayer(p, p.id === socketId, revealAll)),
     discardTop: room.discard.length > 0 ? room.discard[room.discard.length - 1] : null,
     deckSize: room.deck.length,
     currentTurn: room.currentTurn,
     started: room.started,
     ended: room.ended,
-    winner: room.winner
+    winner: room.winner,
+    triggeredFinalRound: room.triggeredFinalRound,
+    finalRoundFinisher: room.finalRoundFinisher
   };
 }
 
