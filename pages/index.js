@@ -3,6 +3,25 @@ import Head from 'next/head';
 
 const POLL_MS = 1800;
 
+// ─── Flip animation styles ───────────────────────────────────────────────────
+const flipAnimation = `
+  @keyframes cardFlip {
+    0% { transform: rotateY(0deg) scale(1); }
+    50% { transform: rotateY(90deg) scale(0.95); }
+    100% { transform: rotateY(180deg) scale(1); }
+  }
+  @keyframes cardFlipBack {
+    0% { transform: rotateY(180deg) scale(1); }
+    50% { transform: rotateY(90deg) scale(0.95); }
+    100% { transform: rotateY(0deg) scale(1); }
+  }
+  @keyframes cardReveal {
+    0% { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+    50% { transform: scale(1.05) rotate(3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+`;
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function saveLocal(key, val) {
   try { localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val)); } catch {}
@@ -38,7 +57,7 @@ function getCardColor(val) {
 }
 
 // ─── Card component ───────────────────────────────────────────────────────────
-function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) {
+function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, isFlipping }) {
   const value = card?.value;
   const revealed = card?.revealed;
   const removed = card?.removed;
@@ -73,62 +92,100 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn }) 
     );
   }
 
-  // Hidden card - card back pattern
+  // Hidden card - Kaleidoscope pattern
   if (!revealed) {
     return (
       <div onClick={selectable && onClick ? onClick : undefined} style={{
         width: s.w, height: s.h, margin: 3,
-        background: '#1e3a5f',
         borderRadius: 10,
         border: selected ? '3px solid #facc15' : selectable ? '2px solid #facc15' : '2px solid #475569',
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         cursor: selectable ? 'pointer' : 'default',
         userSelect: 'none',
         boxShadow: selectable ? '0 0 8px #facc1580' : selected ? '0 0 12px #facc15' : '0 2px 4px #0003',
-        transition: 'transform 0.1s, box-shadow 0.1s',
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
         transform: selectable ? 'scale(1.05)' : 'scale(1)',
-        backgroundImage: 'repeating-linear-gradient(45deg, #1e3a5f 0, #1e3a5f 4px, #2563eb 4px, #2563eb 8px)',
-        backgroundSize: '12px 12px',
+        // Kaleidoscope colorful pattern
+        background: `repeating-conic-gradient(
+          from 0deg,
+          #ec4899 0deg 30deg,
+          #8b5cf6 30deg 60deg,
+          #3b82f6 60deg 90deg,
+          #14b8a6 90deg 120deg,
+          #22c55e 120deg 150deg,
+          #eab308 150deg 180deg,
+          #f97316 180deg 210deg,
+          #ec4899 210deg 240deg,
+          #8b5cf6 240deg 270deg,
+          #3b82f6 270deg 300deg,
+          #14b8a6 300deg 330deg,
+          #22c55e 330deg 360deg
+        )`,
+        backgroundSize: '100% 100%',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+        {/* Overlay to soften the kaleidoscope */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse at center, rgba(30,58,95,0.3) 0%, rgba(30,58,95,0.7) 100%)',
+        }} />
         <div style={{
           width: s.w - 12, height: s.h - 12,
-          border: `2px solid ${selectable ? '#facc15' : '#3b82f6'}`,
+          border: `2px solid ${selectable ? '#facc15' : 'rgba(255,255,255,0.4)'} `,
           borderRadius: 6,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'relative', zIndex: 1,
         }}>
-          <span style={{ color: '#60a5fa', fontSize: s.fs - 6, fontWeight: 'bold' }}>SKYJO</span>
+          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: s.fs - 6, fontWeight: 'bold', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>SKYJO</span>
         </div>
       </div>
     );
   }
 
-  // Revealed card - SkyJo style
+  // Revealed card - SkyJo style with honeycomb pattern
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 3,
-      background: `radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 40%, ${colors.border}08 100%)`,
+      // Honeycomb pattern background
+      backgroundImage: `
+        radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 35%, transparent 70%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='32' viewBox='0 0 28 32'%3E%3Cpath fill='%23${colors.border.substring(1)}' fill-opacity='0.08' d='M14 0L28 8V24L14 32L0 24V8L14 0ZM14 2L26 9V23L14 30L2 23V9L14 2Z'/%3E%3C/svg%3E")
+      `,
+      backgroundSize: '100% 100%, 24px 28px',
+      backgroundBlendMode: 'normal, multiply',
       borderRadius: 10,
-      border: selected ? `3px solid #facc15` : `1px solid ${colors.border}`,
+      border: selected ? `3px solid #facc15` : `2px solid ${colors.border}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: selectable ? 'pointer' : 'default',
       userSelect: 'none',
-      boxShadow: selected ? '0 0 12px #facc15' : '0 1px 3px #0002',
-      transition: 'transform 0.1s, box-shadow 0.1s',
+      boxShadow: selected ? '0 0 12px #facc15' : '0 2px 6px rgba(0,0,0,0.15)',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       transform: selectable ? 'scale(1.05)' : 'scale(1)',
       position: 'relative',
       fontFamily: 'Georgia, "Times New Roman", serif',
+      overflow: 'hidden',
     }}>
-      {/* Center number - much larger */}
+      {/* Subtle inner border */}
       <div style={{
-        fontSize: size === 'sm' ? 28 : size === 'md' ? 38 : 46,
+        position: 'absolute', inset: 3,
+        border: `1px solid ${colors.border}40`,
+        borderRadius: 7,
+        pointerEvents: 'none',
+      }} />
+      {/* Center number - much larger with serif font */}
+      <div style={{
+        fontSize: size === 'sm' ? 34 : size === 'md' ? 48 : 58,
         fontWeight: 'bold', color: colors.text,
-        textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+        textShadow: '0 2px 4px rgba(0,0,0,0.15)',
+        position: 'relative', zIndex: 1,
       }}>{value}</div>
       {/* Color accent bar at bottom */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        height: 4, background: colors.accent,
+        height: 5, background: `linear-gradient(90deg, ${colors.accent}, ${colors.border})`,
         borderBottomLeftRadius: 7, borderBottomRightRadius: 7,
+        opacity: 0.8,
       }} />
     </div>
   );
@@ -520,7 +577,9 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', color: '#f1f5f9', fontFamily: 'system-ui, sans-serif', paddingBottom: 40 }}>
-      <Head><title>SkyJo – {game.id}</title></Head>
+      <Head><title>SkyJo – {game.id}</title>
+        <style>{flipAnimation}</style>
+      </Head>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
@@ -703,7 +762,7 @@ export default function Home() {
             {/* Drawn card */}
             {canPlay && hasDrawnCard && (
               <div style={{ textAlign: 'center' }}>
-                <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : (prev === 'dontWantIt' ? null : 'wantIt'))} style={{
+                <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : 'wantIt')} style={{
                   width: 62, height: 88,
                   background: getCardColor(me.drawnCard).bg,
                   borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -712,7 +771,7 @@ export default function Home() {
                   fontFamily: 'Georgia, "Times New Roman", serif',
                   boxShadow: selectedPos === 'wantIt' ? '0 0 16px #22c55e' : selectedPos === 'dontWantIt' ? '0 0 16px #ef4444' : '0 0 16px #facc15',
                   cursor: 'pointer',
-                  transition: 'transform 0.1s, border 0.1s',
+                  transition: 'transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
                   transform: 'scale(1.05)',
                 }}>{me.drawnCard}</div>
                 <div style={{ color: '#facc15', fontSize: 11, marginTop: 4 }}>DRAWN</div>
@@ -721,15 +780,17 @@ export default function Home() {
                     padding: '4px 10px', borderRadius: 6, border: 'none',
                     background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
                     color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
+                    transition: 'background 0.2s ease',
                   }}>I want it</button>
                   <button onClick={(e) => { e.stopPropagation(); setSelectedPos('dontWantIt'); }} style={{
                     padding: '4px 10px', borderRadius: 6, border: 'none',
                     background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
                     color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
+                    transition: 'background 0.2s ease',
                   }}>I don't want it</button>
                 </div>
                 <div style={{ color: '#64748b', fontSize: 10, marginTop: 4 }}>
-                  {selectedPos === 'wantIt' ? '🟢 Click your grid to SWAP' : selectedPos === 'dontWantIt' ? '🔴 Click a hidden card to FLIP' : 'Choose above'}
+                  {selectedPos === 'wantIt' ? '🟢 Click your grid to SWAP' : selectedPos === 'dontWantIt' ? '🔴 Click a hidden card to FLIP' : 'Tap card or choose above'}
                 </div>
               </div>
             )}
