@@ -105,8 +105,8 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
         boxShadow: selectable ? '0 0 8px #facc1580' : selected ? '0 0 12px #facc15' : '0 2px 8px rgba(0,0,0,0.15)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         transform: selectable ? 'scale(1.05)' : 'scale(1)',
-        // Circular/radial gradient pattern
-        background: 'repeating-radial-gradient(circle at center, #1e3a5f 0px, #1e3a5f 4px, #2563eb 4px, #2563eb 8px, #1e3a5f 8px, #1e3a5f 12px)',
+        // Colorful kaleidoscope + radial gradient mix
+        background: 'repeating-radial-gradient(circle at center, #ec4899 0px, #ec4899 3px, #8b5cf6 3px, #8b5cf6 6px, #3b82f6 6px, #3b82f6 9px, #14b8a6 9px, #14b8a6 12px, #22c55e 12px, #22c55e 15px, #eab308 15px, #eab308 18px)',
         backgroundSize: '100% 100%',
         position: 'relative',
         overflow: 'hidden',
@@ -114,7 +114,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
         {/* Overlay to soften */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, rgba(30,58,95,0.25) 0%, rgba(30,58,95,0.6) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(30,58,95,0.2) 0%, rgba(30,58,95,0.5) 100%)',
         }} />
         <div style={{
           width: s.w - 10, height: s.h - 10,
@@ -133,10 +133,10 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 2,
-      // Honeycomb pattern using CSS gradients
+      // Pronounced honeycomb pattern using CSS gradients
       background: colors.bg,
-      backgroundImage: 'linear-gradient(30deg, ' + colors.border + '25 12px, transparent 12.5px), linear-gradient(150deg, ' + colors.border + '25 12px, transparent 12.5px), linear-gradient(90deg, ' + colors.border + '18 12px, transparent 12.5px)',
-      backgroundSize: '40px 70px',
+      backgroundImage: 'linear-gradient(30deg, ' + colors.border + '40 10px, transparent 10.5px), linear-gradient(150deg, ' + colors.border + '40 10px, transparent 10.5px), linear-gradient(90deg, ' + colors.border + '30 14px, transparent 14.5px)',
+      backgroundSize: '32px 56px',
       borderRadius: 8,
       border: selected ? '3px solid #facc15' : '2px solid ' + colors.border,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -152,7 +152,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
       {/* Subtle inner border matching card color */}
       <div style={{
         position: 'absolute', inset: 2,
-        border: '1px solid ' + colors.border + '30',
+        border: '1px solid ' + colors.border + '40',
         borderRadius: 6,
         pointerEvents: 'none',
       }} />
@@ -412,7 +412,16 @@ export default function Home() {
       return;
     }
     if (canPlay && hasDrawnCard) {
-      doSwap(pos);
+      if (selectedPos === 'wantIt') {
+        // Swap the drawn card with this position
+        doSwap(pos);
+      } else if (selectedPos === 'dontWantIt') {
+        // Discard drawn and flip this card (if hidden)
+        const card = me.grid[pos];
+        if (card && !card.revealed && !card.removed) {
+          doDiscard(pos);
+        }
+      }
     }
   }
 
@@ -729,6 +738,29 @@ export default function Home() {
                   <div style={{ color: '#facc15', fontSize: 9, marginTop: 3, fontWeight: 'bold' }}>DISCARD</div>
                 </div>
               </div>
+              {/* Drawn card controls - only show when player has drawn */}
+              {canPlay && hasDrawnCard && (
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #334155', textAlign: 'center' }}>
+                  <div style={{ color: '#facc15', fontSize: 9, marginBottom: 6, fontWeight: 'bold' }}>DRAWN CARD</div>
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'center', alignItems: 'center' }}>
+                    <button onClick={() => setSelectedPos('wantIt')} style={{
+                      padding: '6px 12px', borderRadius: 6, border: 'none',
+                      background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
+                      color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
+                      flex: 1, maxWidth: 100,
+                    }}>🟢 Want</button>
+                    <button onClick={() => setSelectedPos('dontWantIt')} style={{
+                      padding: '6px 12px', borderRadius: 6, border: 'none',
+                      background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
+                      color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
+                      flex: 1, maxWidth: 100,
+                    }}>🔴 Pass</button>
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: 9, marginTop: 6 }}>
+                    {selectedPos === 'wantIt' ? 'Click grid to swap' : selectedPos === 'dontWantIt' ? 'Click hidden to flip' : 'Choose above'}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Opponents */}
@@ -794,50 +826,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Discard drawn card button */}
-          {canPlay && hasDrawnCard && (
-            <div style={{ textAlign: 'center', marginBottom: 10 }}>
-              <span style={{ color: '#64748b', fontSize: 13, marginRight: 8 }}>Or:</span>
-              <button onClick={() => {
-                if (selectedPos === 'wantIt') {
-                  // They chose to take it but haven't swapped yet - do nothing, they need to click grid
-                  return;
-                } else if (selectedPos === 'dontWantIt') {
-                  // They chose to discard - find a hidden card to flip
-                  const hasHidden = me.grid.some(c => !c.revealed && !c.removed);
-                  if (hasHidden) {
-                    setSelectedPos('discardMode');
-                  } else {
-                    doDiscard(-1);
-                  }
-                } else {
-                  // No choice made yet - default to discard & flip
-                  const hasHidden = me.grid.some(c => !c.revealed && !c.removed);
-                  if (hasHidden) {
-                    setSelectedPos('discardMode');
-                  } else {
-                    doDiscard(-1);
-                  }
-                }
-              }} style={{
-                padding: '8px 18px', borderRadius: 10, border: 'none',
-                background: selectedPos === 'wantIt' ? '#64748b' : '#475569',
-                color: selectedPos === 'wantIt' ? '#94a3b8' : '#f1f5f9',
-                cursor: selectedPos === 'wantIt' ? 'default' : 'pointer',
-                fontSize: 14,
-              }}>
-                {selectedPos === 'wantIt' ? 'First, click grid to swap' : (me.grid.some(c => !c.revealed && !c.removed) ? 'Discard & flip a card' : 'Discard')}
-              </button>
-            </div>
-          )}
-
-          {selectedPos === 'discardMode' && (
-            <div style={{ textAlign: 'center', marginBottom: 8 }}>
-              <span style={{ color: '#fbbf24', fontSize: 13 }}>Click a hidden card to flip it (or cancel)</span>
-              <button onClick={() => setSelectedPos(null)} style={{ marginLeft: 10, background: 'none', border: 'none', color: '#f87171', cursor: 'pointer' }}>✕</button>
-            </div>
-          )}
-
           {/* My board */}
           <div style={{ background: '#1e293b', borderRadius: 18, padding: 16, border: `2px solid ${isMyTurn ? '#3b82f6' : '#334155'}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -864,37 +852,10 @@ export default function Home() {
               <PlayerGrid
                 player={me}
                 isOwn
-                selectable={needInitialReveal
-                  ? true
-                  : canPlay && hasDrawnCard
-                    ? true
-                    : canPlay && selectedPos === 'discardMode'
-                      ? true
-                      : false}
+                selectable={needInitialReveal ? true : canPlay && hasDrawnCard}
                 selectedPos={typeof selectedPos === 'number' ? selectedPos : null}
                 size="lg"
-                onCardClick={pos => {
-                  if (needInitialReveal) {
-                    handleCardClick(pos);
-                    return;
-                  }
-                  if (selectedPos === 'discardMode') {
-                    // discard drawn and flip this card
-                    doDiscard(pos);
-                    setSelectedPos(null);
-                    return;
-                  }
-                  if (canPlay && hasDrawnCard) {
-                    if (selectedPos === 'dontWantIt') {
-                      // User chose to discard, clicking a card means flip it
-                      doDiscard(pos);
-                      setSelectedPos(null);
-                    } else {
-                      // Default or "want it" - swap the card
-                      doSwap(pos);
-                    }
-                  }
-                }}
+                onCardClick={handleCardClick}
               />
             </div>
 
