@@ -33,7 +33,20 @@ function advanceTurn(game) {
 
 function checkRoundEnd(game) {
   const activePlayers = game.players.filter(p => !p.eliminated);
-  // Round ends when one player has all cards revealed
+  // Check if final round is already triggered
+  if (game.triggeredFinalRound) {
+    // Check if ALL players have finished their final turn
+    const allFinished = activePlayers.every(p => p.hasPlayedFinalTurn);
+    if (allFinished) {
+      const finisher = activePlayers.find(p => {
+        const active = p.grid.filter(c => !c.removed);
+        return active.length > 0 && active.every(c => c.revealed);
+      });
+      return finisher || activePlayers[0];
+    }
+    return null; // Keep going until everyone plays
+  }
+  // First player to finish triggers final round
   const finisher = activePlayers.find(p => {
     const active = p.grid.filter(c => !c.removed);
     return active.length > 0 && active.every(c => c.revealed);
@@ -42,7 +55,7 @@ function checkRoundEnd(game) {
 }
 
 function endRound(game, finisherId) {
-  // Reveal all cards
+  // Reveal all cards for all players
   game.players.forEach(p => {
     p.grid = p.grid.map(c => ({ ...c, revealed: true }));
     p.roundScore = calcFullScore(p.grid.filter(c => !c.removed));
@@ -74,6 +87,11 @@ function endRound(game, finisherId) {
     game.phase = 'roundEnd';
     game.roundEnderId = finisherId;
   }
+  
+  // Reset final round state
+  game.triggeredFinalRound = false;
+  game.finalRoundFinisher = null;
+  game.players.forEach(p => { p.hasPlayedFinalTurn = false; });
 }
 
 function startNewRound(game) {
@@ -85,12 +103,16 @@ function startNewRound(game) {
   game.phase = 'initialReveal';
   game.playersReady = {};
   game.roundEnderId = null;
+  // Reset final round state
+  game.triggeredFinalRound = false;
+  game.finalRoundFinisher = null;
   // Reset per-round state
   game.players.forEach(p => {
     p.hasDrawn = false;
     p.drawnCard = null;
     p.initialRevealed = false;
     p.revealedCount = 0;
+    p.hasPlayedFinalTurn = false;
   });
 }
 
@@ -175,14 +197,25 @@ async function processAITurns(game) {
         currentPlayer.score = calcScore(currentPlayer.grid);
       }
 
-      // Check if round ended
+      // Check if this triggers the final round
       const finisher = checkRoundEnd(game);
       if (finisher) {
-        endRound(game, finisher.id);
-        break;
+        if (!game.triggeredFinalRound) {
+          // First finisher - trigger final round, let others play
+          game.triggeredFinalRound = true;
+          game.finalRoundFinisher = finisher.name;
+          game.log.push(`${finisher.name} finished! Final round - everyone gets one more turn`);
+          // Mark finisher as having played their final turn
+          finisher.hasPlayedFinalTurn = true;
+          advanceTurn(game);
+        } else {
+          // Everyone has played - actually end the round
+          endRound(game, finisher.id);
+          break;
+        }
+      } else {
+        advanceTurn(game);
       }
-
-      advanceTurn(game);
     }
   }
 }
@@ -419,9 +452,22 @@ export default async function handler(req, res) {
         game.log.push(`${player.name} matched a column! Cards removed.`);
       }
 
+      // Check if this triggers the final round
       const finisher = checkRoundEnd(game);
       if (finisher) {
-        endRound(game, finisher.id);
+        if (!game.triggeredFinalRound) {
+          // First finisher - trigger final round, let others play
+          game.triggeredFinalRound = true;
+          game.finalRoundFinisher = finisher.name;
+          game.log.push(`${finisher.name} finished! Final round - everyone gets one more turn`);
+          // Mark finisher as having played their final turn
+          finisher.hasPlayedFinalTurn = true;
+          advanceTurn(game);
+          game.log.push(`${game.players[game.currentTurn].name}'s final turn`);
+        } else {
+          // Everyone has played - actually end the round
+          endRound(game, finisher.id);
+        }
       } else {
         advanceTurn(game);
         game.log.push(`${game.players[game.currentTurn].name}'s turn`);
@@ -466,9 +512,22 @@ export default async function handler(req, res) {
         game.log.push(`${player.name} discarded drawn card`);
       }
 
+      // Check if this triggers the final round
       const finisher = checkRoundEnd(game);
       if (finisher) {
-        endRound(game, finisher.id);
+        if (!game.triggeredFinalRound) {
+          // First finisher - trigger final round, let others play
+          game.triggeredFinalRound = true;
+          game.finalRoundFinisher = finisher.name;
+          game.log.push(`${finisher.name} finished! Final round - everyone gets one more turn`);
+          // Mark finisher as having played their final turn
+          finisher.hasPlayedFinalTurn = true;
+          advanceTurn(game);
+          game.log.push(`${game.players[game.currentTurn].name}'s final turn`);
+        } else {
+          // Everyone has played - actually end the round
+          endRound(game, finisher.id);
+        }
       } else {
         advanceTurn(game);
         game.log.push(`${game.players[game.currentTurn].name}'s turn`);
