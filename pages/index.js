@@ -753,14 +753,26 @@ export default function Home() {
               {canPlay && hasDrawnCard && (
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #334155', textAlign: 'center' }}>
                   <div style={{ color: '#facc15', fontSize: 9, marginBottom: 6, fontWeight: 'bold' }}>DRAWN CARD</div>
+                  <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : 'wantIt')} style={{
+                    width: 48, height: 68, margin: '0 auto 8px',
+                    background: getCardColor(me.drawnCard).bg,
+                    borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: selectedPos === 'wantIt' ? '3px solid #22c55e' : selectedPos === 'dontWantIt' ? '3px solid #ef4444' : '2px solid #facc15',
+                    fontSize: 24, fontWeight: 'bold', color: getCardColor(me.drawnCard).text,
+                    fontFamily: 'Georgia, "Times New Roman", serif',
+                    boxShadow: selectedPos === 'wantIt' ? '0 0 10px #22c55e' : selectedPos === 'dontWantIt' ? '0 0 10px #ef4444' : '0 0 10px #facc15',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
+                    transform: 'scale(1.05)',
+                  }}>{me.drawnCard}</div>
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'center', alignItems: 'center' }}>
-                    <button onClick={() => setSelectedPos('wantIt')} style={{
+                    <button onClick={(e) => { e.stopPropagation(); setSelectedPos('wantIt'); }} style={{
                       padding: '6px 12px', borderRadius: 6, border: 'none',
                       background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
                       color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
                       flex: 1, maxWidth: 100,
                     }}>🟢 Want</button>
-                    <button onClick={() => setSelectedPos('dontWantIt')} style={{
+                    <button onClick={(e) => { e.stopPropagation(); setSelectedPos('dontWantIt'); }} style={{
                       padding: '6px 12px', borderRadius: 6, border: 'none',
                       background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
                       color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
