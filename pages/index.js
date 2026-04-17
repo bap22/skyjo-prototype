@@ -704,7 +704,18 @@ export default function Home() {
                   {me.totalScore || 0}pts
                 </span>
               </div>
-              <PlayerGrid player={me} size="md" isOwn={true} selectable={canPlay && hasDrawnCard} selectedPos={selectedPos} onCardClick={handleCardClick} />
+              {needInitialReveal && (
+                <div style={{ textAlign: 'center', marginBottom: 10, padding: '8px', background: '#1d4ed820', borderRadius: 8 }}>
+                  <p style={{ color: '#fbbf24', margin: '0 0 8px', fontSize: 13 }}>Select 2 cards to reveal ({initialSelections.length}/2)</p>
+                  {initialSelections.length === 2 && (
+                    <button onClick={doReveal} disabled={busy} style={{
+                      padding: '6px 16px', borderRadius: 6, border: 'none',
+                      background: '#16a34a', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: 12,
+                    }}>Reveal!</button>
+                  )}
+                </div>
+              )}
+              <PlayerGrid player={me} size="md" isOwn={true} selectable={needInitialReveal || (canPlay && hasDrawnCard)} selectedPos={selectedPos} onCardClick={handleCardClick} />
               <div style={{ marginTop: 8, color: '#64748b', fontSize: 12, textAlign: 'right' }}>
                 {me.revealedCount}/12 · score {me.score}
               </div>
