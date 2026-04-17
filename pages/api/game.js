@@ -54,6 +54,18 @@ function checkRoundEnd(game) {
   return finisher || null;
 }
 
+// Mark all players who already have all cards revealed as having played their final turn
+function markFinishedPlayers(game) {
+  game.players.forEach(p => {
+    if (!p.hasPlayedFinalTurn) {
+      const active = p.grid.filter(c => !c.removed);
+      if (active.length > 0 && active.every(c => c.revealed)) {
+        p.hasPlayedFinalTurn = true;
+      }
+    }
+  });
+}
+
 function endRound(game, finisherId) {
   // Reveal all cards for all players
   game.players.forEach(p => {
@@ -462,6 +474,8 @@ export default async function handler(req, res) {
           game.log.push(`${finisher.name} finished! Final round - everyone gets one more turn`);
           // Mark finisher as having played their final turn
           finisher.hasPlayedFinalTurn = true;
+          // Mark any other players who already have all cards revealed
+          markFinishedPlayers(game);
           advanceTurn(game);
           game.log.push(`${game.players[game.currentTurn].name}'s final turn`);
         } else {
@@ -522,6 +536,8 @@ export default async function handler(req, res) {
           game.log.push(`${finisher.name} finished! Final round - everyone gets one more turn`);
           // Mark finisher as having played their final turn
           finisher.hasPlayedFinalTurn = true;
+          // Mark any other players who already have all cards revealed
+          markFinishedPlayers(game);
           advanceTurn(game);
           game.log.push(`${game.players[game.currentTurn].name}'s final turn`);
         } else {
