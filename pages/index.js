@@ -92,7 +92,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
     );
   }
 
-  // Hidden card - circular gradient pattern
+  // Hidden card - Kaleidoscope pattern
   if (!revealed) {
     return (
       <div onClick={selectable && onClick ? onClick : undefined} style={{
@@ -106,15 +106,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         transform: selectable ? 'scale(1.05)' : 'scale(1)',
         // Circular/radial gradient pattern
-        background: `repeating-radial-gradient(
-          circle at center,
-          #1e3a5f 0px,
-          #1e3a5f 4px,
-          #2563eb 4px,
-          #2563eb 8px,
-          #1e3a5f 8px,
-          #1e3a5f 12px
-        )`,
+        background: 'repeating-radial-gradient(circle at center, #1e3a5f 0px, #1e3a5f 4px, #2563eb 4px, #2563eb 8px, #1e3a5f 8px, #1e3a5f 12px)',
         backgroundSize: '100% 100%',
         position: 'relative',
         overflow: 'hidden',
@@ -126,7 +118,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
         }} />
         <div style={{
           width: s.w - 10, height: s.h - 10,
-          border: `2px solid ${selectable ? '#facc15' : 'rgba(255,255,255,0.5)}`,
+          border: selectable ? '2px solid #facc15' : '2px solid rgba(255,255,255,0.5)',
           borderRadius: 6,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', zIndex: 1,
@@ -137,24 +129,16 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
     );
   }
 
-  // Revealed card - SkyJo style with honeycomb pattern background
+  // Revealed card - SkyJo style with clean white look
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 2,
       // Honeycomb pattern using CSS gradients
       background: colors.bg,
-      backgroundImage: `
-        linear-gradient(30deg, ${colors.border}18 12px, transparent 12.5px),
-        linear-gradient(150deg, ${colors.border}18 12px, transparent 12.5px),
-        linear-gradient(30deg, ${colors.border}18 12px, transparent 12.5px),
-        linear-gradient(150deg, ${colors.border}18 12px, transparent 12.5px),
-        linear-gradient(60deg, ${colors.border}25 25px, transparent 25.5px),
-        linear-gradient(240deg, ${colors.border}25 25px, transparent 25.5px)
-      `,
-      backgroundSize: '56px 100px',
-      backgroundPosition: '0 0, 0 0, 28px 50px, 28px 50px, 0 0, 0 0',
+      backgroundImage: 'linear-gradient(30deg, ' + colors.border + '25 12px, transparent 12.5px), linear-gradient(150deg, ' + colors.border + '25 12px, transparent 12.5px), linear-gradient(90deg, ' + colors.border + '18 12px, transparent 12.5px)',
+      backgroundSize: '40px 70px',
       borderRadius: 8,
-      border: selected ? `3px solid #facc15` : `2px solid ${colors.border}`,
+      border: selected ? '3px solid #facc15' : '2px solid ' + colors.border,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: selectable ? 'pointer' : 'default',
       userSelect: 'none',
@@ -168,7 +152,7 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
       {/* Subtle inner border matching card color */}
       <div style={{
         position: 'absolute', inset: 2,
-        border: `1px solid ${colors.border}30`,
+        border: '1px solid ' + colors.border + '30',
         borderRadius: 6,
         pointerEvents: 'none',
       }} />
@@ -774,38 +758,38 @@ export default function Home() {
             })}
           </div>
 
-          {/* Drawn card display */}
+          {/* Drawn card display - centered below all players */}
           {canPlay && hasDrawnCard && (
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ display: 'inline-block', background: '#1e293b', borderRadius: 12, padding: '10px 16px', border: '1px solid #334155' }}>
-                <div style={{ color: '#facc15', fontSize: 10, marginBottom: 6, fontWeight: 'bold' }}>DRAWN</div>
-                <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : 'wantIt')} style={{
-                  width: 56, height: 80, margin: '0 auto 8px',
-                  background: getCardColor(me.drawnCard).bg,
-                  borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: selectedPos === 'wantIt' ? '4px solid #22c55e' : selectedPos === 'dontWantIt' ? '4px solid #ef4444' : '3px solid #facc15',
-                  fontSize: 28, fontWeight: 'bold', color: getCardColor(me.drawnCard).text,
-                  fontFamily: 'Georgia, "Times New Roman", serif',
-                  boxShadow: selectedPos === 'wantIt' ? '0 0 12px #22c55e' : selectedPos === 'dontWantIt' ? '0 0 12px #ef4444' : '0 0 12px #facc15',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
-                  transform: 'scale(1.05)',
-                }}>{me.drawnCard}</div>
-                <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedPos('wantIt'); }} style={{
-                    padding: '4px 10px', borderRadius: 5, border: 'none',
-                    background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
-                    color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
-                  }}>🟢 Want</button>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedPos('dontWantIt'); }} style={{
-                    padding: '4px 10px', borderRadius: 5, border: 'none',
-                    background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
-                    color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
-                  }}>🔴 Pass</button>
-                </div>
-                <div style={{ color: '#64748b', fontSize: 10, marginTop: 6, maxWidth: 200 }}>
-                  {selectedPos === 'wantIt' ? 'Click grid to SWAP' : selectedPos === 'dontWantIt' ? 'Click hidden card to FLIP' : 'Choose above'}
-                </div>
+            <div style={{ textAlign: 'center', marginTop: 20, padding: '16px', background: '#1e293b', borderRadius: 14, maxWidth: 400, margin: '20px auto' }}>
+              <div style={{ color: '#facc15', fontSize: 11, marginBottom: 8, fontWeight: 'bold' }}>YOUR DRAWN CARD</div>
+              <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : 'wantIt')} style={{
+                width: 72, height: 100, margin: '0 auto',
+                background: getCardColor(me.drawnCard).bg,
+                borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: selectedPos === 'wantIt' ? '4px solid #22c55e' : selectedPos === 'dontWantIt' ? '4px solid #ef4444' : '3px solid #facc15',
+                fontSize: 32, fontWeight: 'bold', color: getCardColor(me.drawnCard).text,
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                boxShadow: selectedPos === 'wantIt' ? '0 0 16px #22c55e' : selectedPos === 'dontWantIt' ? '0 0 16px #ef4444' : '0 0 16px #facc15',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
+                transform: 'scale(1.05)',
+              }}>{me.drawnCard}</div>
+              <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedPos('wantIt'); }} style={{
+                  padding: '6px 14px', borderRadius: 6, border: 'none',
+                  background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
+                  color: '#fff', fontSize: 12, fontWeight: 'bold', cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                }}>🟢 I want it</button>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedPos('dontWantIt'); }} style={{
+                  padding: '6px 14px', borderRadius: 6, border: 'none',
+                  background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
+                  color: '#fff', fontSize: 12, fontWeight: 'bold', cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                }}>🔴 Don't want it</button>
+              </div>
+              <div style={{ color: '#64748b', fontSize: 11, marginTop: 10 }}>
+                {selectedPos === 'wantIt' ? 'Click a card in your grid to SWAP' : selectedPos === 'dontWantIt' ? 'Click a hidden card to FLIP it' : 'Choose an option above'}
               </div>
             </div>
           )}
