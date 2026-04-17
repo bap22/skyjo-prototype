@@ -141,13 +141,18 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
       width: s.w, height: s.h, margin: 2,
-      // Honeycomb hexagon pattern with radial gradient overlay
-      background: `
-        radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 50%, transparent 100%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='28' viewBox='0 0 24 28'%3E%3Cpath fill='%23${colors.border.substring(1)}' fill-opacity='0.12' d='M12 0L24 7V21L12 28L0 21V7L12 0Z'/%3E%3C/svg%3E")
+      // Honeycomb pattern using CSS gradients
+      background: colors.bg,
+      backgroundImage: `
+        linear-gradient(30deg, ${colors.border}18 12px, transparent 12.5px),
+        linear-gradient(150deg, ${colors.border}18 12px, transparent 12.5px),
+        linear-gradient(30deg, ${colors.border}18 12px, transparent 12.5px),
+        linear-gradient(150deg, ${colors.border}18 12px, transparent 12.5px),
+        linear-gradient(60deg, ${colors.border}25 25px, transparent 25.5px),
+        linear-gradient(240deg, ${colors.border}25 25px, transparent 25.5px)
       `,
-      backgroundSize: '100% 100%, 20px 24px',
-      backgroundRepeat: 'no-repeat, repeat',
+      backgroundSize: '56px 100px',
+      backgroundPosition: '0 0, 0 0, 28px 50px, 28px 50px, 0 0, 0 0',
       borderRadius: 8,
       border: selected ? `3px solid #facc15` : `2px solid ${colors.border}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
