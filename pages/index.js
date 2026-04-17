@@ -96,14 +96,14 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
   if (!revealed) {
     return (
       <div onClick={selectable && onClick ? onClick : undefined} style={{
-        width: s.w, height: s.h, margin: 3,
-        borderRadius: 10,
+        width: s.w, height: s.h, margin: 2,
+        borderRadius: 8,
         border: selected ? '3px solid #facc15' : selectable ? '2px solid #facc15' : '2px solid #475569',
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         cursor: selectable ? 'pointer' : 'default',
         userSelect: 'none',
-        boxShadow: selectable ? '0 0 8px #facc1580' : selected ? '0 0 12px #facc15' : '0 2px 4px #0003',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+        boxShadow: selectable ? '0 0 8px #facc1580' : selected ? '0 0 12px #facc15' : '0 2px 8px rgba(0,0,0,0.15)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         transform: selectable ? 'scale(1.05)' : 'scale(1)',
         // Kaleidoscope colorful pattern
         background: `repeating-conic-gradient(
@@ -128,64 +128,58 @@ function Card({ card, pos, selectable, selected, onClick, size = 'md', isOwn, is
         {/* Overlay to soften the kaleidoscope */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, rgba(30,58,95,0.3) 0%, rgba(30,58,95,0.7) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(30,58,95,0.25) 0%, rgba(30,58,95,0.6) 100%)',
         }} />
         <div style={{
-          width: s.w - 12, height: s.h - 12,
-          border: `2px solid ${selectable ? '#facc15' : 'rgba(255,255,255,0.4)'} `,
+          width: s.w - 10, height: s.h - 10,
+          border: `2px solid ${selectable ? '#facc15' : 'rgba(255,255,255,0.5)'} `,
           borderRadius: 6,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', zIndex: 1,
         }}>
-          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: s.fs - 6, fontWeight: 'bold', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>SKYJO</span>
+          <span style={{ color: 'rgba(255,255,255,0.95)', fontSize: s.fs - 6, fontWeight: 'bold', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>SKYJO</span>
         </div>
       </div>
     );
   }
 
-  // Revealed card - SkyJo style with honeycomb pattern
+  // Revealed card - SkyJo style with clean white look
   return (
     <div onClick={selectable && onClick ? onClick : undefined} style={{
-      width: s.w, height: s.h, margin: 3,
-      // Honeycomb pattern background
-      backgroundImage: `
-        radial-gradient(ellipse at center, ${colors.bg} 0%, ${colors.bg} 35%, transparent 70%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='32' viewBox='0 0 28 32'%3E%3Cpath fill='%23${colors.border.substring(1)}' fill-opacity='0.08' d='M14 0L28 8V24L14 32L0 24V8L14 0ZM14 2L26 9V23L14 30L2 23V9L14 2Z'/%3E%3C/svg%3E")
-      `,
-      backgroundSize: '100% 100%, 24px 28px',
-      backgroundBlendMode: 'normal, multiply',
-      borderRadius: 10,
+      width: s.w, height: s.h, margin: 2,
+      // Clean white background like real SkyJo cards
+      background: '#fefefe',
+      borderRadius: 8,
       border: selected ? `3px solid #facc15` : `2px solid ${colors.border}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: selectable ? 'pointer' : 'default',
       userSelect: 'none',
-      boxShadow: selected ? '0 0 12px #facc15' : '0 2px 6px rgba(0,0,0,0.15)',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      boxShadow: selected ? '0 0 12px #facc15' : '0 2px 8px rgba(0,0,0,0.12)',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       transform: selectable ? 'scale(1.05)' : 'scale(1)',
       position: 'relative',
       fontFamily: 'Georgia, "Times New Roman", serif',
       overflow: 'hidden',
     }}>
-      {/* Subtle inner border */}
+      {/* Subtle inner border matching card color */}
       <div style={{
-        position: 'absolute', inset: 3,
-        border: `1px solid ${colors.border}40`,
-        borderRadius: 7,
+        position: 'absolute', inset: 2,
+        border: `1px solid ${colors.border}30`,
+        borderRadius: 6,
         pointerEvents: 'none',
       }} />
-      {/* Center number - much larger with serif font */}
+      {/* Center number - large serif font */}
       <div style={{
-        fontSize: size === 'sm' ? 34 : size === 'md' ? 48 : 58,
+        fontSize: size === 'sm' ? 32 : size === 'md' ? 42 : 52,
         fontWeight: 'bold', color: colors.text,
-        textShadow: '0 2px 4px rgba(0,0,0,0.15)',
+        textShadow: 'none',
         position: 'relative', zIndex: 1,
       }}>{value}</div>
       {/* Color accent bar at bottom */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        height: 5, background: `linear-gradient(90deg, ${colors.accent}, ${colors.border})`,
-        borderBottomLeftRadius: 7, borderBottomRightRadius: 7,
-        opacity: 0.8,
+        height: 4, background: colors.accent,
+        borderBottomLeftRadius: 6, borderBottomRightRadius: 6,
       }} />
     </div>
   );
@@ -681,11 +675,11 @@ export default function Home() {
 
       {/* Main game area */}
       {game.started && phase !== 'lobby' && !game.ended && phase !== 'roundEnd' && (
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '16px 12px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 12px' }}>
 
           {/* Turn banner */}
           <div style={{
-            textAlign: 'center', marginBottom: 12, padding: '10px 20px',
+            textAlign: 'center', marginBottom: 16, padding: '10px 20px',
             background: isMyTurn ? '#1d4ed820' : '#1e293b',
             borderRadius: 12, border: isMyTurn ? '1px solid #3b82f6' : '1px solid #334155',
           }}>
@@ -695,106 +689,122 @@ export default function Home() {
             }
           </div>
 
-          {/* Opponents */}
-          {opponents.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 16 }}>
-              {opponents.map((opp, i) => {
-                const isOppTurn = game.players[game.currentTurn]?.id === opp.id;
-                return (
-                  <div key={opp.id} style={{
-                    background: '#1e293b', borderRadius: 14, padding: 12,
-                    border: isOppTurn ? '2px solid #fbbf24' : '1px solid #334155',
-                    minWidth: 160, flex: '1 1 160px', maxWidth: 240,
+          {/* All players - logged in user first, then others */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center', marginBottom: 16 }}>
+            {/* Current player (logged in user) */}
+            <div style={{
+              background: '#1e293b', borderRadius: 14, padding: 14,
+              border: isMyTurn ? '3px solid #3b82f6' : '2px solid #334155',
+              minWidth: 200, flex: '1 1 200px', maxWidth: 280,
+              boxShadow: isMyTurn ? '0 0 20px #3b82f640' : 'none',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontWeight: 'bold', fontSize: 15, color: '#60a5fa' }}>
+                  👤 {me.name}
+                  {isMyTurn && ' 🎯'}
+                </span>
+                <span style={{ color: me.totalScore >= 80 ? '#f87171' : '#4ade80', fontSize: 13, fontWeight: 'bold' }}>
+                  {me.totalScore || 0}pts
+                </span>
+              </div>
+              <PlayerGrid player={me} size="md" isOwn={true} selectable={canPlay && hasDrawnCard} selectedPos={selectedPos} onCardClick={handleCardClick} />
+              <div style={{ marginTop: 8, color: '#64748b', fontSize: 12, textAlign: 'right' }}>
+                {me.revealedCount}/12 · score {me.score}
+              </div>
+              {/* Deck + Discard below player */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 12, paddingTop: 12, borderTop: '1px solid #334155' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div onClick={canDraw ? () => doDraw('deck') : undefined} style={{
+                    width: 52, height: 74, background: canDraw ? '#1d4ed8' : '#334155',
+                    borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: canDraw ? 'pointer' : 'default', border: canDraw ? '2px solid #60a5fa' : '2px solid #475569',
+                    fontSize: 20, boxShadow: canDraw ? '0 0 10px #3b82f660' : 'none',
+                    transition: 'transform 0.15s', transform: canDraw ? 'scale(1.05)' : 'scale(1)',
+                  }}>🂠</div>
+                  <div style={{ color: '#60a5fa', fontSize: 9, marginTop: 3, fontWeight: 'bold' }}>DECK</div>
+                  <div style={{ color: '#64748b', fontSize: 9 }}>{game.deckSize || 0}</div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div onClick={canDraw ? () => doDraw('discard') : undefined} style={{
+                    width: 52, height: 74,
+                    background: discardTop !== null ? getCardColor(discardTop).bg : '#334155',
+                    borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: canDraw && discardTop !== null ? 'pointer' : 'default',
+                    border: canDraw ? `2px solid ${getCardColor(discardTop || 0).border}` : '2px solid #475569',
+                    fontSize: 24, fontWeight: 'bold', color: getCardColor(discardTop || 0).text,
+                    fontFamily: 'Georgia, "Times New Roman", serif',
+                    boxShadow: canDraw ? `0 0 10px ${getCardColor(discardTop || 0).border}60` : 'none',
+                    transition: 'transform 0.15s', transform: canDraw ? 'scale(1.05)' : 'scale(1)',
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <span style={{ fontWeight: 'bold', fontSize: 14, color: isOppTurn ? '#fbbf24' : '#e2e8f0' }}>
-                        {opp.isAI ? '🤖 ' : '👤 '}{opp.name}
-                        {isOppTurn && ' ▶'}
-                      </span>
-                      <span style={{ color: opp.totalScore >= 80 ? '#f87171' : '#64748b', fontSize: 12 }}>
-                        {opp.totalScore || 0}pts
-                      </span>
-                    </div>
-                    <PlayerGrid player={opp} size="sm" />
-                    <div style={{ marginTop: 6, color: '#475569', fontSize: 11, textAlign: 'right' }}>
-                      {opp.revealedCount}/12 · score {opp.score}
-                    </div>
+                    {discardTop !== null ? discardTop : '—'}
                   </div>
-                );
-              })}
+                  <div style={{ color: '#facc15', fontSize: 9, marginTop: 3, fontWeight: 'bold' }}>DISCARD</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Opponents */}
+            {opponents.map((opp, i) => {
+              const isOppTurn = game.players[game.currentTurn]?.id === opp.id;
+              return (
+                <div key={opp.id} style={{
+                  background: '#1e293b', borderRadius: 14, padding: 12,
+                  border: isOppTurn ? '2px solid #fbbf24' : '1px solid #334155',
+                  minWidth: 180, flex: '1 1 180px', maxWidth: 240,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span style={{ fontWeight: 'bold', fontSize: 14, color: isOppTurn ? '#fbbf24' : '#e2e8f0' }}>
+                      {opp.isAI ? '🤖 ' : '👤 '}{opp.name}
+                      {isOppTurn && ' ▶'}
+                    </span>
+                    <span style={{ color: opp.totalScore >= 80 ? '#f87171' : '#64748b', fontSize: 12 }}>
+                      {opp.totalScore || 0}pts
+                    </span>
+                  </div>
+                  <PlayerGrid player={opp} size="sm" />
+                  <div style={{ marginTop: 6, color: '#475569', fontSize: 11, textAlign: 'right' }}>
+                    {opp.revealedCount}/12 · score {opp.score}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Drawn card display - centered below all players */}
+          {canPlay && hasDrawnCard && (
+            <div style={{ textAlign: 'center', marginTop: 20, padding: '16px', background: '#1e293b', borderRadius: 14, maxWidth: 400, margin: '20px auto' }}>
+              <div style={{ color: '#facc15', fontSize: 11, marginBottom: 8, fontWeight: 'bold' }}>YOUR DRAWN CARD</div>
+              <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : 'wantIt')} style={{
+                width: 72, height: 100, margin: '0 auto',
+                background: getCardColor(me.drawnCard).bg,
+                borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: selectedPos === 'wantIt' ? '4px solid #22c55e' : selectedPos === 'dontWantIt' ? '4px solid #ef4444' : '3px solid #facc15',
+                fontSize: 32, fontWeight: 'bold', color: getCardColor(me.drawnCard).text,
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                boxShadow: selectedPos === 'wantIt' ? '0 0 16px #22c55e' : selectedPos === 'dontWantIt' ? '0 0 16px #ef4444' : '0 0 16px #facc15',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
+                transform: 'scale(1.05)',
+              }}>{me.drawnCard}</div>
+              <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedPos('wantIt'); }} style={{
+                  padding: '6px 14px', borderRadius: 6, border: 'none',
+                  background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
+                  color: '#fff', fontSize: 12, fontWeight: 'bold', cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                }}>🟢 I want it</button>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedPos('dontWantIt'); }} style={{
+                  padding: '6px 14px', borderRadius: 6, border: 'none',
+                  background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
+                  color: '#fff', fontSize: 12, fontWeight: 'bold', cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                }}>🔴 Don't want it</button>
+              </div>
+              <div style={{ color: '#64748b', fontSize: 11, marginTop: 10 }}>
+                {selectedPos === 'wantIt' ? 'Click a card in your grid to SWAP' : selectedPos === 'dontWantIt' ? 'Click a hidden card to FLIP it' : 'Choose an option above'}
+              </div>
             </div>
           )}
-
-          {/* Deck + Discard */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 20, marginBottom: 16 }}>
-            {/* Deck */}
-            <div style={{ textAlign: 'center' }}>
-              <div onClick={canDraw ? () => doDraw('deck') : undefined} style={{
-                width: 62, height: 88, background: canDraw ? '#1d4ed8' : '#334155',
-                borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: canDraw ? 'pointer' : 'default', border: canDraw ? '2px solid #60a5fa' : '2px solid #475569',
-                fontSize: 24, boxShadow: canDraw ? '0 0 12px #3b82f660' : 'none',
-                transition: 'transform 0.1s', transform: canDraw ? 'scale(1.05)' : 'scale(1)',
-              }}>🂠</div>
-              <div style={{ color: '#64748b', fontSize: 11, marginTop: 4 }}>{game.deckSize || 0} left</div>
-              <div style={{ color: '#60a5fa', fontSize: 11 }}>DECK</div>
-            </div>
-
-            {/* Discard */}
-            <div style={{ textAlign: 'center' }}>
-              <div onClick={canDraw ? () => doDraw('discard') : undefined} style={{
-                width: 62, height: 88,
-                background: discardTop !== null ? getCardColor(discardTop).bg : '#334155',
-                borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: canDraw && discardTop !== null ? 'pointer' : 'default',
-                border: canDraw ? `2px solid ${getCardColor(discardTop || 0).border}` : '2px solid #475569',
-                fontSize: 28, fontWeight: 'bold', color: getCardColor(discardTop || 0).text,
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                boxShadow: canDraw ? `0 0 12px ${getCardColor(discardTop || 0).border}60` : 'none',
-                transition: 'transform 0.1s', transform: canDraw ? 'scale(1.05)' : 'scale(1)',
-              }}>
-                {discardTop !== null ? discardTop : '—'}
-              </div>
-              <div style={{ color: '#64748b', fontSize: 11, marginTop: 4 }}>&nbsp;</div>
-              <div style={{ color: '#facc15', fontSize: 11 }}>DISCARD</div>
-            </div>
-
-            {/* Drawn card */}
-            {canPlay && hasDrawnCard && (
-              <div style={{ textAlign: 'center' }}>
-                <div onClick={() => setSelectedPos(prev => prev === 'wantIt' ? 'dontWantIt' : 'wantIt')} style={{
-                  width: 62, height: 88,
-                  background: getCardColor(me.drawnCard).bg,
-                  borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: selectedPos === 'wantIt' ? '4px solid #22c55e' : selectedPos === 'dontWantIt' ? '4px solid #ef4444' : '3px solid #facc15',
-                  fontSize: 28, fontWeight: 'bold', color: getCardColor(me.drawnCard).text,
-                  fontFamily: 'Georgia, "Times New Roman", serif',
-                  boxShadow: selectedPos === 'wantIt' ? '0 0 16px #22c55e' : selectedPos === 'dontWantIt' ? '0 0 16px #ef4444' : '0 0 16px #facc15',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
-                  transform: 'scale(1.05)',
-                }}>{me.drawnCard}</div>
-                <div style={{ color: '#facc15', fontSize: 11, marginTop: 4 }}>DRAWN</div>
-                <div style={{ marginTop: 6, display: 'flex', gap: 6, justifyContent: 'center' }}>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedPos('wantIt'); }} style={{
-                    padding: '4px 10px', borderRadius: 6, border: 'none',
-                    background: selectedPos === 'wantIt' ? '#22c55e' : '#475569',
-                    color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
-                    transition: 'background 0.2s ease',
-                  }}>I want it</button>
-                  <button onClick={(e) => { e.stopPropagation(); setSelectedPos('dontWantIt'); }} style={{
-                    padding: '4px 10px', borderRadius: 6, border: 'none',
-                    background: selectedPos === 'dontWantIt' ? '#ef4444' : '#475569',
-                    color: '#fff', fontSize: 11, fontWeight: 'bold', cursor: 'pointer',
-                    transition: 'background 0.2s ease',
-                  }}>I don't want it</button>
-                </div>
-                <div style={{ color: '#64748b', fontSize: 10, marginTop: 4 }}>
-                  {selectedPos === 'wantIt' ? '🟢 Click your grid to SWAP' : selectedPos === 'dontWantIt' ? '🔴 Click a hidden card to FLIP' : 'Tap card or choose above'}
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* Discard drawn card button */}
           {canPlay && hasDrawnCard && (
